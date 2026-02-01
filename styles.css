@@ -1,0 +1,399 @@
+/* ===================================
+   Minimal Academic Page Styles
+   Clean, elegant design
+   =================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,200;0,300;0,400;0,500;0,600;1,200;1,300;1,400;1,500;1,600&family=Sen:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --color-text: rgba(40, 40, 40, 0.85);
+    --color-text-secondary: rgba(40, 40, 40, 0.65);
+    --color-text-muted: rgba(40, 40, 40, 0.45);
+    --color-link: rgba(40, 40, 40, 0.85);
+    --color-border: rgba(40, 40, 40, 0.1);
+    --color-bg: #f5f1e8;
+    --color-accent: #b8860b;
+
+    --font-sans: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --max-width: 800px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-text);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-decoration-color: rgba(40, 40, 40, 0.2);
+    text-underline-offset: 3px;
+    transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+    opacity: 0.7;
+    text-decoration-color: rgba(40, 40, 40, 0.5);
+}
+
+strong {
+    font-weight: 600;
+}
+
+/* ===================================
+   Header / About
+   =================================== */
+
+.header {
+    margin-bottom: 3rem;
+}
+
+.header-content {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.profile-photo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 15%;
+    flex-shrink: 0;
+}
+
+.header-text {
+    flex: 1;
+}
+
+.header h1 {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.social-links a {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.social-links a:hover {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.bio {
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.bio p {
+    margin-bottom: 0.85rem;
+}
+
+.bio p:last-child {
+    margin-bottom: 0;
+}
+
+.bio a {
+    color: var(--color-text-secondary);
+}
+
+.bio a:hover {
+    color: var(--color-text);
+}
+
+/* ===================================
+   Sections
+   =================================== */
+
+.section {
+    margin-bottom: 2.5rem;
+}
+
+.section h2 {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.section-more {
+    margin-top: 1.2rem;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+}
+
+.section-more a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+}
+
+.section-more a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-decoration-color: rgba(40, 40, 40, 0.5);
+}
+
+/* ===================================
+   News
+   =================================== */
+
+.news-list {
+    list-style: none;
+}
+
+.news-list li {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.news-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.news-date {
+    flex-shrink: 0;
+    width: 80px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.news-content {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.news-content strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+/* ===================================
+   Publications
+   =================================== */
+
+.publications-list {
+    list-style: none;
+}
+
+.publication {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.publication:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.publication-title {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    line-height: 1.4;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+a.publication-title:hover {
+    text-decoration: underline;
+    text-decoration-color: rgba(40, 40, 40, 0.5);
+}
+
+.publication-authors {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.2rem;
+    line-height: 1.4;
+}
+
+.publication-venue {
+    display: inline;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-style: normal;
+}
+
+.publication-citations {
+    display: inline;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.publication-citations::before {
+    content: " · ";
+}
+
+/* ===================================
+   Projects / Open Source
+   =================================== */
+
+.projects-list {
+    list-style: none;
+}
+
+.project {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.project:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.project-title {
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.project-title:hover {
+    text-decoration: underline;
+    text-decoration-color: rgba(40, 40, 40, 0.4);
+}
+
+.project-stars {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    margin-left: 0.5rem;
+    font-weight: 500;
+}
+
+.project-desc {
+    display: block;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-top: 0.3rem;
+    line-height: 1.5;
+}
+
+/* ===================================
+   Responsive
+   =================================== */
+
+@media (max-width: 600px) {
+    body {
+        font-size: 1.1rem;
+    }
+
+    .container {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .profile-photo {
+        width: 140px;
+        height: 140px;
+    }
+
+    .social-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem 1rem;
+    }
+
+    .news-list li {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .news-date {
+        width: auto;
+    }
+}
+
+/* ===================================
+   Print
+   =================================== */
+
+@media print {
+    .container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    body {
+        background: white;
+    }
+
+    a {
+        color: var(--color-text);
+        border-bottom: none;
+    }
+
+    .section {
+        break-inside: avoid;
+    }
+}
