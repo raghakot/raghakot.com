@@ -69,25 +69,20 @@ strong {
 
 .header {
     margin-bottom: 3rem;
-}
-
-.header-content {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
+    text-align: center;
 }
 
 .profile-photo {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
     object-fit: cover;
     object-position: center 15%;
-    flex-shrink: 0;
+    margin-bottom: 1.5rem;
 }
 
-.header-text {
-    flex: 1;
+.header-content {
+    text-align: left;
 }
 
 .header h1 {
@@ -98,12 +93,14 @@ strong {
     margin-bottom: 0.5rem;
     letter-spacing: -0.01em;
     line-height: 1.2;
+    text-align: center;
 }
 
 .social-links {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    justify-content: center;
 }
 
 .social-links a {
@@ -341,12 +338,6 @@ a.publication-title:hover {
 
     .container {
         padding: 2.5rem 1.5rem;
-    }
-
-    .header-content {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
     }
 
     .header h1 {
