@@ -1,0 +1,34 @@
+name: Update Citation Counts
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Every Monday at midnight UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-citations:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install scholarly
+
+      - name: Update citation counts
+        run: python scripts/update_citations.py
+
+      - name: Commit changes
+        run: |
+          git diff --quiet index.html && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Update citation counts"
+          git push
