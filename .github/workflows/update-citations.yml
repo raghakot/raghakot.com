@@ -19,7 +19,8 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install scholarly
+        # scholarly 1.7.x calls httpx.Client(proxies=...), removed in httpx 0.28
+        run: pip install scholarly "httpx<0.28"
 
       - name: Update citation counts
         env:
