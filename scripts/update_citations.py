@@ -35,9 +35,20 @@ def setup_proxy():
 
 
 def round_citations(count):
-    if count < 10:
+    """Floor to a bucket that gets coarser as the count grows.
+
+    Small counts stay precise (rounding 120 to 100 would hide 17% of the
+    citations); large counts can be coarser since 50 of 9000 is noise.
+    """
+    if count < 100:
         return count
-    return (count // 10) * 10
+    if count < 1000:
+        bucket = 10
+    elif count < 10000:
+        bucket = 50
+    else:
+        bucket = 100
+    return (count // bucket) * bucket
 
 
 def format_citations(count):
@@ -112,7 +123,8 @@ def main():
 
         if best_title and best_score > 0.5:
             new_count = scholar_data[best_title]
-            if new_count >= current_count:
+            new_rounded = round_citations(new_count)
+            if new_rounded >= current_count:
                 new_text = format_citations(new_count)
                 if new_text != current_text:
                     print(f"  Updated: {title}")
@@ -129,8 +141,8 @@ def main():
                     print(f"  No change: {title} ({current_text})")
             else:
                 print(
-                    f"  Skipped (count dropped): {title} "
-                    f"({current_count} -> {new_count})"
+                    f"  Skipped (would decrease): {title} "
+                    f"({current_count} -> {new_rounded})"
                 )
         else:
             print(f"  No Scholar match: {title}")
