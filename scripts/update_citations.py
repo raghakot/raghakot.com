@@ -35,20 +35,25 @@ def setup_proxy():
 
 
 def round_citations(count):
-    """Floor to a bucket that gets coarser as the count grows.
+    """Round to the nearest bucket; bucket grows with magnitude.
 
-    Small counts stay precise (rounding 120 to 100 would hide 17% of the
-    citations); large counts can be coarser since 50 of 9000 is noise.
+    Uses nearest (not floor) so a count just below a milestone snaps
+    up -- 990 displays as 1,000+ since citations will catch up shortly,
+    and 948 displays as 950+ rather than the more misleading 900+.
+    Buckets stay small for low counts so we don't lop off a meaningful
+    percentage (bucket 10 for 73 -> 70, not bucket 50 -> 50).
     """
-    if count < 100:
+    if count < 10:
         return count
-    if count < 1000:
+    if count < 100:
         bucket = 10
-    elif count < 10000:
+    elif count < 1000:
         bucket = 50
-    else:
+    elif count < 10000:
         bucket = 100
-    return (count // bucket) * bucket
+    else:
+        bucket = 500
+    return round(count / bucket) * bucket
 
 
 def format_citations(count):
