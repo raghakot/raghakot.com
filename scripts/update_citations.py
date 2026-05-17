@@ -5,14 +5,33 @@ Non-destructive: only updates when the new count >= currently displayed count.
 Rounds down to the nearest 10 for display.
 """
 
+import os
 import re
 import sys
 from pathlib import Path
 
-from scholarly import scholarly
+from scholarly import ProxyGenerator, scholarly
 
 SCHOLAR_ID = "g2UodAsAAAAJ"
 HTML_FILE = Path(__file__).resolve().parent.parent / "index.html"
+
+
+def setup_proxy():
+    """Route scholarly through ScraperAPI when SCRAPERAPI_KEY is set.
+
+    Google Scholar blocks bare GitHub Actions runner IPs; ScraperAPI rotates
+    residential IPs so the fetch actually succeeds.
+    """
+    api_key = os.environ.get("SCRAPERAPI_KEY")
+    if not api_key:
+        print("SCRAPERAPI_KEY not set; trying direct fetch (likely to be blocked).")
+        return
+    pg = ProxyGenerator()
+    if pg.ScraperAPI(api_key):
+        scholarly.use_proxy(pg)
+        print("Using ScraperAPI proxy.")
+    else:
+        print("ScraperAPI setup failed; falling back to direct fetch.")
 
 
 def round_citations(count):
@@ -57,12 +76,15 @@ def fetch_scholar_citations():
 def main():
     html = HTML_FILE.read_text()
 
+    setup_proxy()
+
     print("Fetching citations from Google Scholar...")
     try:
         scholar_data = fetch_scholar_citations()
     except Exception as e:
         print(f"Error fetching from Scholar: {e}")
-        sys.exit(1)
+        print("Skipping this run; will retry on next schedule.")
+        sys.exit(0)
 
     print(f"Found {len(scholar_data)} publications on Scholar.\n")
 

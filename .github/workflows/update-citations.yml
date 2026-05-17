@@ -22,6 +22,8 @@ jobs:
         run: pip install scholarly
 
       - name: Update citation counts
+        env:
+          SCRAPERAPI_KEY: ${{ secrets.SCRAPERAPI_KEY }}
         run: python scripts/update_citations.py
 
       - name: Commit changes
