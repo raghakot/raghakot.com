@@ -104,9 +104,11 @@ def main():
 
     print(f"Found {len(scholar_data)} publications on Scholar.\n")
 
-    # Match publication titles in HTML to their citation spans
+    # Match publication titles in HTML to their citation spans. The tempered
+    # dot keeps each match inside one <li>, so an entry without a citations
+    # span can never pair its title with a later entry's span.
     pattern = re.compile(
-        r'(<a[^>]*class="publication-title">)(.*?)(</a>.*?'
+        r'(<a[^>]*class="publication-title">)(.*?)(</a>(?:(?!</li>).)*?'
         r'<span class="publication-citations">)(.*?)(</span>)',
         re.DOTALL,
     )
