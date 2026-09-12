@@ -16,8 +16,10 @@ Open <http://127.0.0.1:8000/>. The page also works when opening `index.html` dir
 - `fonts/` contains the local fonts and their licenses; `favicon.svg` contains the tab icon.
 
 Cloudflare Pages reads `_headers` to revalidate HTML, CSS, and JavaScript on each
-visit. The versioned CSS and JavaScript URLs bypass files cached before this
-policy was added, preventing a new page from loading an old layout.
+visit. In the domain's Cloudflare dashboard, set **Caching → Configuration →
+Browser Cache TTL → Respect Existing Headers**; a fixed browser TTL overrides
+this policy. The versioned CSS and JavaScript URLs bypass files cached before
+the policy was added, preventing a new page from loading an old layout.
 
 The citation updater runs every Monday at 00:00 UTC through
 `.github/workflows/update-citations.yml`. It uses the repository's `SCRAPERAPI_KEY`
