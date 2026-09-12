@@ -1,0 +1,13 @@
+# Revalidate HTML and layout assets together on each visit. Fonts and images
+# keep their normal caching policy.
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/styles.css
+  Cache-Control: no-cache
+
+/script.js
+  Cache-Control: no-cache
