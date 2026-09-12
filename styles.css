@@ -187,7 +187,7 @@ p {
     gap: 90px;
 }
 
-.eyebrow, .margin-label, .section-number {
+.eyebrow, .margin-label {
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.13em;
@@ -305,13 +305,6 @@ h1 {
 .section {
     border-top: 1px solid var(--rule);
     padding: 37px 0 47px;
-}
-
-.section-number {
-    display: block;
-    margin-bottom: 14px;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
 }
 
 h2 {
@@ -724,12 +717,6 @@ h3 a span {
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: baseline;
         column-gap: 16px;
-    }
-
-    .section-number {
-        grid-column: 1 / -1;
-        margin-bottom: 9px;
-        font-size: 9px;
     }
 
     h2 {
