@@ -2,18 +2,30 @@
 """Fetch citation counts from Google Scholar and update index.html.
 
 Non-destructive: only updates when the new count >= currently displayed count.
-Rounds down to the nearest 10 for display.
+Rounds to magnitude-based buckets for display. Fetch failures leave the page
+unchanged and exit unsuccessfully so GitHub Actions reports the failed update.
 """
 
 import os
 import re
-import sys
+from html import unescape
 from pathlib import Path
 
 from scholarly import ProxyGenerator, scholarly
 
 SCHOLAR_ID = "g2UodAsAAAAJ"
 HTML_FILE = Path(__file__).resolve().parent.parent / "index.html"
+MIN_TITLE_SIMILARITY = 0.5
+
+# Bound each match to one list item. An uncited paper must never consume the
+# next paper's citation span. Named groups keep all surrounding HTML intact.
+CITATION_PATTERN = re.compile(
+    r'(?P<prefix><a\b[^>]*class="publication-title"[^>]*>'
+    r'(?P<title>[^<]*)</a>(?:(?!</li>).)*?'
+    r'<span class="publication-citations">)'
+    r'(?P<count>[^<]*)(?P<suffix></span>)',
+    re.DOTALL,
+)
 
 
 def setup_proxy():
@@ -35,14 +47,7 @@ def setup_proxy():
 
 
 def round_citations(count):
-    """Round to the nearest bucket; bucket grows with magnitude.
-
-    Uses nearest (not floor) so a count just below a milestone snaps
-    up -- 990 displays as 1,000+ since citations will catch up shortly,
-    and 948 displays as 950+ rather than the more misleading 900+.
-    Buckets stay small for low counts so we don't lop off a meaningful
-    percentage (bucket 10 for 73 -> 70, not bucket 50 -> 50).
-    """
+    """Preserve the display's nearest-bucket rounding (73 → 70, 948 → 950)."""
     if count < 10:
         return count
     if count < 100:
@@ -68,102 +73,81 @@ def parse_displayed_count(text):
     return 0
 
 
-def title_similarity(t1, t2):
-    w1 = set(re.findall(r"\w+", t1.lower()))
-    w2 = set(re.findall(r"\w+", t2.lower()))
-    if not w1 or not w2:
+def title_similarity(first, second):
+    first_words = set(re.findall(r"\w+", unescape(first).lower()))
+    second_words = set(re.findall(r"\w+", unescape(second).lower()))
+    if not first_words or not second_words:
         return 0.0
-    return len(w1 & w2) / max(len(w1), len(w2))
+    return len(first_words & second_words) / max(len(first_words), len(second_words))
 
 
 def fetch_scholar_citations():
     author = scholarly.search_author_id(SCHOLAR_ID)
     author = scholarly.fill(author, sections=["publications"])
 
-    results = {}
-    for pub in author["publications"]:
-        title = pub["bib"].get("title", "")
-        citations = pub.get("num_citations", 0)
-        results[title] = citations
+    return {
+        publication["bib"].get("title", ""): publication.get("num_citations", 0)
+        for publication in author["publications"]
+    }
 
-    return results
+
+def update_citations(html, scholar_data):
+    """Replace matching citation counts without fetching data or writing files."""
+    def replace_citation(match):
+        title = match["title"].strip()
+        current_text = match["count"].strip()
+        current_count = parse_displayed_count(current_text)
+
+        best_title = max(
+            scholar_data,
+            key=lambda candidate: title_similarity(title, candidate),
+            default=None,
+        )
+        if best_title is None or title_similarity(title, best_title) <= MIN_TITLE_SIMILARITY:
+            print(f"  No Scholar match: {title}")
+            return match[0]
+
+        new_count = scholar_data[best_title]
+        new_rounded = round_citations(new_count)
+        if new_rounded < current_count:
+            print(f"  Skipped (would decrease): {title} ({current_count} -> {new_rounded})")
+            return match[0]
+
+        new_text = format_citations(new_count)
+        if new_text == current_text:
+            print(f"  No change: {title} ({current_text})")
+            return match[0]
+
+        print(f"  Updated: {title}")
+        print(f"    {current_text} -> {new_text} (raw: {new_count})")
+        return f'{match["prefix"]}{new_text}{match["suffix"]}'
+
+    return CITATION_PATTERN.sub(replace_citation, html)
 
 
 def main():
-    html = HTML_FILE.read_text()
-
-    setup_proxy()
+    html = HTML_FILE.read_text(encoding="utf-8")
 
     print("Fetching citations from Google Scholar...")
     try:
+        setup_proxy()
         scholar_data = fetch_scholar_citations()
-    except Exception as e:
-        print(f"Error fetching from Scholar: {e}")
-        print("Skipping this run; will retry on next schedule.")
-        sys.exit(0)
+        if not scholar_data:
+            raise ValueError("Google Scholar returned no publications")
+    except Exception as error:
+        print(f"Error fetching from Scholar: {error}")
+        print("Page left unchanged; will retry on the next schedule.")
+        return 1
 
     print(f"Found {len(scholar_data)} publications on Scholar.\n")
-
-    # Match publication titles in HTML to their citation spans. The tempered
-    # dot keeps each match inside one <li>, so an entry without a citations
-    # span can never pair its title with a later entry's span.
-    pattern = re.compile(
-        r'(<a[^>]*class="publication-title">)(.*?)(</a>(?:(?!</li>).)*?'
-        r'<span class="publication-citations">)(.*?)(</span>)',
-        re.DOTALL,
-    )
-
-    updated = False
-
-    def replacer(match):
-        nonlocal updated
-        title = match.group(2).strip()
-        current_text = match.group(4).strip()
-        current_count = parse_displayed_count(current_text)
-
-        best_title, best_score = None, 0
-        for scholar_title in scholar_data:
-            score = title_similarity(title, scholar_title)
-            if score > best_score:
-                best_score = score
-                best_title = scholar_title
-
-        if best_title and best_score > 0.5:
-            new_count = scholar_data[best_title]
-            new_rounded = round_citations(new_count)
-            if new_rounded >= current_count:
-                new_text = format_citations(new_count)
-                if new_text != current_text:
-                    print(f"  Updated: {title}")
-                    print(f"    {current_text} -> {new_text} (raw: {new_count})")
-                    updated = True
-                    return (
-                        match.group(1)
-                        + match.group(2)
-                        + match.group(3)
-                        + new_text
-                        + match.group(5)
-                    )
-                else:
-                    print(f"  No change: {title} ({current_text})")
-            else:
-                print(
-                    f"  Skipped (would decrease): {title} "
-                    f"({current_count} -> {new_rounded})"
-                )
-        else:
-            print(f"  No Scholar match: {title}")
-
-        return match.group(0)
-
-    new_html = pattern.sub(replacer, html)
-
-    if updated:
-        HTML_FILE.write_text(new_html)
+    new_html = update_citations(html, scholar_data)
+    if new_html != html:
+        HTML_FILE.write_text(new_html, encoding="utf-8")
         print("\nindex.html updated.")
     else:
         print("\nNo updates needed.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
