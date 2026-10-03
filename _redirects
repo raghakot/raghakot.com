@@ -1,5 +1,0 @@
-# Short links. Cloudflare Pages reads this file: path, destination, status.
-# /uoa opens the UOA dashboard at the Mac mini's Tailscale address, which only your own devices
-# with Tailscale connected can reach.
-/uoa http://100.68.72.42/dashboard/ 302
-/uoa/ http://100.68.72.42/dashboard/ 302
